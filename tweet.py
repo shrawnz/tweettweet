@@ -35,6 +35,9 @@ db = MongoAlchemy(app)
 TWEETTYPE_TEXT = 1
 TWEETTYPE_IMAGE = 2
 TWEETTYPE_TEXTIMG = 3
+
+TYPE_KEJRI = 0
+TYPE_MODI = 1
 class TweetModel(db.Document):
 	user = db.StringField()
 	content = db.StringField()
@@ -44,12 +47,13 @@ class TweetModel(db.Document):
 	favourite = db.IntField()
 	coordinates = db.TupleField(db.FloatField(),db.FloatField(),allow_none=True)
 	tweetType = db.EnumField(db.IntField(),1,2,3)	#	1-Text | 2-Image | 3-Text+Image
+	tweetFor = db.IntField()
 
 
 @app.route("/")
 def index():
 	# all_tweets = tweepy_api.user_timeline('shrawnz23')
-	all_tweets = tweepy_api.search('modi')
+	all_tweets = tweepy_api.search('modi OR bjp pm OR pm modi')
 	tweets=[]
 	# print (all_tweets[0], file=sys.stderr)
 	for tweet in all_tweets:
@@ -60,7 +64,7 @@ def index():
 		location = tweet.user.location
 		favourite = tweet.favorite_count
 		coordinates=tweet.coordinates
-
+		tweetFor = TYPE_MODI
 		tweetType = TWEETTYPE_TEXT
 		if('media' in tweet.entities):
 			if content:
@@ -69,7 +73,7 @@ def index():
 				tweetType = TWEETTYPE_IMAGE
 
 		model = TweetModel(user=username,content=content,retweeted=retweeted,hashtags=hashtags,location=location,favourite=favourite,\
-				coordinates=coordinates,tweetType=tweetType)
+				coordinates=coordinates,tweetType=tweetType ,tweetFor=tweetFor)
 		model.save()
 		tweets.append([tweet.id,username,content,hashtags,retweeted,location,favourite,coordinates,tweetType])
 
