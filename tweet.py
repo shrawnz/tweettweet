@@ -48,6 +48,7 @@ class TweetModel(db.Document):
 	coordinates = db.TupleField(db.FloatField(),db.FloatField(),allow_none=True)
 	tweetType = db.EnumField(db.IntField(),1,2,3)	#	1-Text | 2-Image | 3-Text+Image
 	tweetFor = db.IntField()
+	url_id = db.StringField()
 
 
 @app.route("/")
@@ -57,6 +58,7 @@ def index():
 	tweets=[]
 	# print (all_tweets[0], file=sys.stderr)
 	for tweet in all_tweets:
+		print(tweet.retweeted,file=sys.stderr)
 		username = tweet.user.name
 		content = tweet.text
 		retweeted = tweet.retweeted
@@ -65,6 +67,7 @@ def index():
 		favourite = tweet.favorite_count
 		coordinates=tweet.coordinates
 		tweetFor = TYPE_MODI
+		url_id = str(tweet.id)
 		tweetType = TWEETTYPE_TEXT
 		if('media' in tweet.entities):
 			if content:
@@ -73,11 +76,38 @@ def index():
 				tweetType = TWEETTYPE_IMAGE
 
 		model = TweetModel(user=username,content=content,retweeted=retweeted,hashtags=hashtags,location=location,favourite=favourite,\
-				coordinates=coordinates,tweetType=tweetType ,tweetFor=tweetFor)
+				coordinates=coordinates,tweetType=tweetType ,tweetFor=tweetFor,url_id=url_id)
 		model.save()
 		tweets.append([tweet.id,username,content,hashtags,retweeted,location,favourite,coordinates,tweetType])
 
 	return render_template('index.html', tweets = tweets)
+
+@app.route("/showType")
+def showType():
+	texts = TweetModel.query.filter(TweetModel.tweetType==TWEETTYPE_TEXT).all()
+	both = TweetModel.query.filter(TweetModel.tweetType==TWEETTYPE_TEXTIMG).all()
+	img = TweetModel.query.filter(TweetModel.tweetType==TWEETTYPE_IMAGE).all()
+
+	cnt_text = len(texts)
+	cnt_both = len(both)
+	cnt_img = len(img)
+
+	total = cnt_text + cnt_both + cnt_img
+	ptage_text = (cnt_text/total)*100
+	ptage_img = (cnt_img/total)*100
+	ptage_both = (cnt_both/total)*100
+
+	data = [["Text",ptage_text],["Image",ptage_img],["Text+Img",ptage_both]]
+
+	return render_template('display.html',data=data)	
+
+@app.route("/getModiData")
+def getTweetM():
+	return("Modi data stored!")
+
+@app.route("/getKejriData")
+def getTweetK():
+	return ("Kejri data stored")
 
 if __name__ == "__main__":
 	app.run()
