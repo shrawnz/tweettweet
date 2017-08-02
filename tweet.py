@@ -113,6 +113,11 @@ def showHashtag():
 	# print (result,file=sys.stderr)
 	return render_template('hashtag.html',tags=result[:10])
 
+@app.route("/showFav")
+def showFav():
+	original_tweets = TweetModel.query.filter(TweetModel.retweeted==False).all()
+	for tweet in original:
+		
 
 @app.route("/getModiData")
 def getTweetM():
