@@ -101,6 +101,19 @@ def showType():
 
 	return render_template('display.html',data=data)	
 
+@app.route("/showHashtag")
+def showHashtag():
+	tweets = TweetModel.query.all()
+	hash_dict = dict()
+	for tweet in tweets:
+		tags = tweet.hashtags
+		for t in tags:
+			hash_dict[t] = hash_dict.get(t, 0) + 1
+	result = sorted(hash_dict.items(), key=lambda x: x[1],reverse=True)
+	# print (result,file=sys.stderr)
+	return render_template('hashtag.html',tags=result[:10])
+
+
 @app.route("/getModiData")
 def getTweetM():
 	return("Modi data stored!")
