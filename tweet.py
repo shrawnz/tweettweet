@@ -180,7 +180,7 @@ def getData():
 	
 	while True:
 		try:
-			resp = getTweetK(resp)
+			resp = getTweetM(resp)
 		except tweepy.error.RateLimitError:
 			print ("ERROR",file=sys.stderr)
 			global INDEX
@@ -215,7 +215,7 @@ def getTweetM(max_id):
 		hashtags = [h['text'] for h in tweet.entities['hashtags']]
 		location = tweet.user.location
 		favourite = tweet.favorite_count
-		coordinates=tweet.coordinates
+		coordinates=None
 		tweetFor = TYPE_MODI
 		tweetType = TWEETTYPE_TEXT
 		if('media' in tweet.entities):
@@ -233,7 +233,7 @@ def getTweetM(max_id):
 	return min_id
 
 def getTweetK(max_id):
-	all_tweets = tweepy_api.search('kejriwal OR aam aadmi party OR aap',count=100,max_id=max_id)
+	all_tweets = tweepy_api.search('aamaadmi OR aap OR kejriwal',count=100,max_id=max_id)
 	tweets=[]
 	min_id = None 
 	same = 0
@@ -252,7 +252,7 @@ def getTweetK(max_id):
 		hashtags = [h['text'] for h in tweet.entities['hashtags']]
 		location = tweet.user.location
 		favourite = tweet.favorite_count
-		coordinates=tweet.coordinates
+		coordinates=None
 		tweetFor = TYPE_KEJRI
 		tweetType = TWEETTYPE_TEXT
 		if('media' in tweet.entities):

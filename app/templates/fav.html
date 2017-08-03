@@ -13,7 +13,7 @@
 <body>
 
 <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-    <table id="datatable">
+    <table id="datatable" class="hide">
     <thead>
         <tr>
 
@@ -31,28 +31,6 @@
         <tr>
     </tbody>
 </table>
-
-    <br><br>
-    <div id="container_kejri" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-      <table id="datatable_kejri">
-    <thead>
-        <tr>
-
-            <th></th>
-            <th>Kejriwal Hashtags</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for t in tags_k %}
-        <tr>
-            <th>#{{t.0}}</th>
-            <td>{{t.1}}</td>
-        </tr>
-        {% endfor %}
-        <tr>
-    </tbody>
-</table>
-
 
 </body>
 
