@@ -108,8 +108,15 @@ def showRetweet():
 
 @app.route("/showFav")
 def showFav():
-	original_tweets = TweetModel.query.filter(TweetModel.retweeted==False).all()
-	# for tweet in original:
+	tweets = TweetModel.query.filter(TweetModel.location.regex(r'\bdelhi\b|\bncr\b',ignore_case=True)).all()
+	cnt_modi = 0
+	cnt_kejri = 0
+	for tweet in tweets:
+		if tweet.tweetFor==TYPE_MODI:
+			cnt_modi+=1
+		else:
+			cnt_kejri+=1
+	
 	return("ok")	
 
 @app.route("/getData")
@@ -156,7 +163,7 @@ def getTweetM():
 
 @app.route("/getKejriData")
 def getTweetK():
-	all_tweets = tweepy_api.search('kejriwal OR aam aadmi party OR aap delhi')
+	all_tweets = tweepy_api.search('kejriwal OR aam aadmi party OR aap')
 	tweets=[]
 	# print (all_tweets[0], file=sys.stderr)
 	for tweet in all_tweets:
