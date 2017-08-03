@@ -147,8 +147,8 @@ def showFav():
 			cnt_modi+=1
 		else:
 			cnt_kejri+=1
-
-	return("ok")
+	data = [["Modi",cnt_modi],["Kejriwal",cnt_kejri]]
+	return render_template('popular.html',data=data)
 
 @app.route("/favCount")
 def favCount():
