@@ -12,6 +12,7 @@ Approach:
 2. Through the twitter api searched for tweets relevant to Modi and Kejriwal by using keywords such as "modi,bjp pm,pm modi" and "aap, aam aadmi party, kejriwal" for Modi and Kejriwal respectively.
 3. Saved all the statuses received to mongodb using MongoAlchemy.
 4. Filtered out relevant data by querying the dataset.
-5. Used highcharts with jquery to show graphs and visualisations.
+5. To find out who's more popular in Delhi,I counted posts having location as delhi or ncr and plotted a chart for the same.
+6. Used highcharts with jquery to show graphs and visualisations.
 
 
