@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="http://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+	<title>Result</title>
+</head>
+<body>
+
+<div class="container">
+  <div class="jumbotron" style="text-align: center;">
+    <h1>PreCog Task A</h1>      
+    <p>Shreyans Mongia - 2015178</p>
+  </div>
+
+<a href="/showType" target="_blank" id="type" type="button" class="btn btn-primary" style="margin-left: 5rem;">Type of tweets</a>
+<a href="/showHashtag" target="_blank" id="hashtag" type="button" class="btn btn-success" style="margin-left: 5rem;">Top 10 HashTags</a>
+<a href="/showRetweet" target="_blank" id="retweet" type="button" class="btn btn-warning" style="margin-left: 5rem;">Retweets v/s Original Tweets</a>
+<a href="/showFav" target="_blank" id="popular" type="button" class="btn btn-danger" style="margin-left: 5rem;">Who's more popular</a>
+<a href="/favCount" target="_blank" id="fav" type="button" class="btn btn-info" style="margin-left: 5rem;">Favourite Count</a>
+
+</div>
+<br><br>
+<div id="container_type" class="tasks hide" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
+
+<div id="container_hashtag" class="tasks hide">
+    <div id="container_modi" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+    <table id="datatable_modi">
+    <thead>
+        <tr>
+
+            <th></th>
+            <th>Modi Hashtags</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in tags_m %}
+        <tr>
+            <th>#{{t.0}}</th>
+            <td>{{t.1}}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+    </tbody>
+</table>
+
+    <br><br>
+    <div id="container_kejri" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+      <table id="datatable_kejri">
+    <thead>
+        <tr>
+
+            <th></th>
+            <th>Kejriwal Hashtags</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in tags_k %}
+        <tr>
+            <th>#{{t.0}}</th>
+            <td>{{t.1}}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+    </tbody>
+</table>
+</div>
+
+</body>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+</script>
+<script>
+    
+    var type_options = [];
+        var type_data = {{type_data|safe}};
+        for(i=0;i<type_data.length;i++)
+        {
+            type_options.push({name:type_data[i][0],y:type_data[i][1]})
+        }
+    $(document).ready(function () {
+
+        /*$('#type').click(function(){
+            $('.tasks').each(function(){
+                $(this).addClass('hide');
+            });
+            $('#container_type').removeClass('hide');
+        });
+
+        $('#hashtag').click(function(){
+            $('.tasks').each(function(){
+                $(this).addClass('hide');
+            });
+            $('#container_hashtag').removeClass('hide');
+        });*/
+    // Build the chart
+    Highcharts.chart('container_type', {
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            type: 'pie'
+        },
+        title: {
+            text: 'Types of Tweets'
+        },
+        tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: false
+                },
+                showInLegend: true
+            }
+        },
+        series: [{
+            name: 'Type',
+            colorByPoint: true,
+            data: type_options
+        }]
+    });
+
+
+
+
+
+
+    Highcharts.chart('container_modi', {
+    data: {
+        table: 'datatable_modi'
+    },
+    chart: {
+        type: 'column'
+    },
+    title: {
+        text: 'Most popular hashtags used in tweets for Modi'
+    },
+    yAxis: {
+        allowDecimals: false,
+        title: {
+            text: 'Units'
+        }
+    },
+    tooltip: {
+        formatter: function () {
+            return '<b>' + this.series.name + '</b><br/>' +
+                this.point.y + ' ' + this.point.name.toLowerCase();
+        }
+    }
+ });
+
+    Highcharts.chart('container_kejri', {
+    data: {
+        table: 'datatable_kejri'
+    },
+    chart: {
+        type: 'column'
+    },
+    title: {
+        text: 'Most popular hashtags used in tweets for Kejriwal'
+    },
+    yAxis: {
+        allowDecimals: false,
+        title: {
+            text: 'Units'
+        }
+    },
+    tooltip: {
+        formatter: function () {
+            return '<b>' + this.series.name + '</b><br/>' +
+                this.point.y + ' ' + this.point.name.toLowerCase();
+        }
+    }
+ });
+
+
+
+
+
+});
+</script>
+</html>

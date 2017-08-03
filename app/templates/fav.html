@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="http://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/data.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+
+	<title>Result</title>
+</head>
+<body>
+
+<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+    <table id="datatable">
+    <thead>
+        <tr>
+
+            <th></th>
+            <th>Fav count</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in data %}
+        <tr>
+            <th>{{t}}</th>
+            <td>{{data.t}}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+    </tbody>
+</table>
+
+    <br><br>
+    <div id="container_kejri" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+      <table id="datatable_kejri">
+    <thead>
+        <tr>
+
+            <th></th>
+            <th>Kejriwal Hashtags</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in tags_k %}
+        <tr>
+            <th>#{{t.0}}</th>
+            <td>{{t.1}}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+    </tbody>
+</table>
+
+
+</body>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+<script>
+   $(document).ready()
+   {
+    Highcharts.chart('container', {
+    chart: {
+        type: 'scatter',
+        zoomType: 'xy'
+    },
+    title: {
+        text: 'Favourite count on original tweets'
+    },
+    xAxis: {
+        title: {
+            enabled: true,
+            text: 'No of likes'
+        },
+        startOnTick: true,
+        endOnTick: true,
+        showLastLabel: true
+    },
+    yAxis: {
+        title: {
+            text: 'No of tweets'
+        }
+    },
+    legend: {
+        layout: 'vertical',
+        align: 'left',
+        verticalAlign: 'top',
+        x: 100,
+        y: 70,
+        floating: true,
+        backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF',
+        borderWidth: 1
+    },
+    plotOptions: {
+        scatter: {
+            marker: {
+                radius: 5,
+                states: {
+                    hover: {
+                        enabled: true,
+                        lineColor: 'rgb(100,100,100)'
+                    }
+                }
+            },
+            states: {
+                hover: {
+                    marker: {
+                        enabled: false
+                    }
+                }
+            },
+            tooltip: {
+                headerFormat: '<b>{series.name}</b><br>',
+                pointFormat: '{point.x} likes, {point.y} tweets'
+            }
+        }
+    },
+    series: [{
+        name: 'Fav Count',
+        color: 'rgba(223, 83, 83, .5)',
+        data: {{data}}
+    }]
+});
+
+
+
+    }
+</script>
+</html>

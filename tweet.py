@@ -9,13 +9,14 @@ app.debug = True
 app.config['SECRET_KEY']='23081997'
 # oauth = OAuth(app)
 
-TWITTER_CONSUMER_KEY = 'bpdE7WkpiEtWRrdBZ7h5Nhr5o'
-TWITTER_CONSUMER_SECRET = 'tXW36I7IcI7sXt5QXlnwIkrT093ZADlimQKiMTSizHSEXsm7qx'
-TWITTER_ACCESS_TOKEN = '3692740694-XAsTjJeSoRk2uxi5TCold3hZg9mU6HRz7AvUQMP'
-TWITTER_ACCESS_TOKEN_SECRET = 'N0Mlkn1aDwK9fkzfMu3Iwih7IUuuiEJ9q6Q4yjfwc1yc5'
+TWITTER_CONSUMER_KEYS = ['bpdE7WkpiEtWRrdBZ7h5Nhr5o','yPE1NC4UeYVtFnVe4eM5A1Zh8','8f2cgkMuF1IC8enJY6klvL8rY','o6fAZVsI0SrEeV2Gqv9zqega0']
+TWITTER_CONSUMER_SECRETS = ['tXW36I7IcI7sXt5QXlnwIkrT093ZADlimQKiMTSizHSEXsm7qx','G1J61zps7G8qGMOgLfDw7bs8zzVf20pUTHNIzvKaulLqIPReB4','phY1XIegXcZ8GUowOQXHsJCKq5IXRYhDxwbJG46OkPoFV3vMn6','UQEgnufnNfoI7deKbPXV6cfkuF3cKpLmtM3IfbaIi8yQKHlt1Z']
+TWITTER_ACCESS_TOKENS = ['3692740694-XAsTjJeSoRk2uxi5TCold3hZg9mU6HRz7AvUQMP','3692740694-R2swShbzcCngvVzzFLFZcjMlCzudgl3xObkdItg','3692740694-YD96Qt6ZnVn4fzepf2cOpwTzMjENAncWXtVHrQN','3692740694-eC8pagFgyyORqHzmqyICljOEC7aQGjsxTMhupyL']
+TWITTER_ACCESS_TOKEN_SECRETS = ['N0Mlkn1aDwK9fkzfMu3Iwih7IUuuiEJ9q6Q4yjfwc1yc5','cXlGhbiSX9TqBXw9J77iy9i9HUq5lgPY0tIzEFwg8idKe','DDSAtSokw1151CABI6eafs7BQ19QYZzdeQtwxivOKcEPt','Vfmwr2LUrMAVqZTyn4rNXUVQrMIVYg0oyMqrgijMCO59J']
 
-auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
-auth.set_access_token(TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET)
+INDEX = 0
+auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEYS[INDEX], TWITTER_CONSUMER_SECRETS[INDEX])
+auth.set_access_token(TWITTER_ACCESS_TOKENS[INDEX], TWITTER_ACCESS_TOKEN_SECRETS[INDEX])
 tweepy_api = tweepy.API(auth)
 
 app.config['MONGOALCHEMY_DATABASE'] = 'tweet'
@@ -53,8 +54,38 @@ class TweetModel(db.Document):
 
 @app.route("/")
 def index():
-	all_tweets = tweepy_api.user_timeline('shrawnz23')
-	return("Hello!")
+	#TYPE of TWEETS
+	texts = TweetModel.query.filter(TweetModel.tweetType==TWEETTYPE_TEXT).all()
+	both = TweetModel.query.filter(TweetModel.tweetType==TWEETTYPE_TEXTIMG).all()
+	img = TweetModel.query.filter(TweetModel.tweetType==TWEETTYPE_IMAGE).all()
+	cnt_text = len(texts)
+	cnt_both = len(both)
+	cnt_img = len(img)
+	total = cnt_text + cnt_both + cnt_img
+	ptage_text = (cnt_text/total)*100
+	ptage_img = (cnt_img/total)*100
+	ptage_both = (cnt_both/total)*100
+	type_data = [["Text",ptage_text],["Image",ptage_img],["Text+Img",ptage_both]]
+	
+
+	#HASHTAGS
+	tweets = TweetModel.query.filter(TweetModel.tweetFor==TYPE_MODI).all()
+	hash_dict = dict()
+	for tweet in tweets:
+		tags = tweet.hashtags
+		for t in tags:
+			hash_dict[t] = hash_dict.get(t, 0) + 1
+	result_m = sorted(hash_dict.items(), key=lambda x: x[1],reverse=True)
+
+	tweets = TweetModel.query.filter(TweetModel.tweetFor==TYPE_KEJRI).all()
+	hash_dict = dict()
+	for tweet in tweets:
+		tags = tweet.hashtags
+		for t in tags:
+			hash_dict[t] = hash_dict.get(t, 0) + 1
+	result_k = sorted(hash_dict.items(), key=lambda x: x[1],reverse=True)
+
+	return render_template('main.html',type_data=type_data,tags_m=result_m[:10],tags_k=result_k[:10])
 
 @app.route("/showType")
 def showType():
@@ -116,36 +147,75 @@ def showFav():
 			cnt_modi+=1
 		else:
 			cnt_kejri+=1
-	
-	return("ok")	
+
+	return("ok")
+
+@app.route("/favCount")
+def favCount():
+	hash_cnt = dict()
+	tweets = TweetModel.query.filter(TweetModel.retweeted==False)
+	fav_cnt = [t.favourite for t in tweets if t.favourite>0]
+	result = sorted(fav_cnt)
+	for i in result:
+			hash_cnt[i] = hash_cnt.get(i, 0) + 1
+	# print(hash_cnt,file=sys.stderr)
+	data = [ [k,v] for k, v in hash_cnt.items() ]
+	return render_template('fav.html',data=data)
+
+@app.route("/showMap")
+def showMap():
+	hash_location = dict()
+	tweets = TweetModel.query.all()
+	location = [t.location.split(' ')[-1:] for t in tweets]
+	for l in location:
+			hash_location[l[0]] = hash_location.get(l[0], 0) + 1
+	print(hash_location,file=sys.stderr)
+	return render_template('location.html',locations=hash_location)
 
 @app.route("/getData")
 def getData():
-	limit = tweepy_api.rate_limit_status()
-	cnt = limit['resources']['search']['/search/tweets']['limit']
-	while(cnt):
-		resp = getTweetM()
+
+	resp = 999999999999999999999999999999
+	
+	while True:
+		try:
+			resp = getTweetK(resp)
+		except tweepy.error.RateLimitError:
+			print ("ERROR",file=sys.stderr)
+			global INDEX
+			global tweepy_api
+			INDEX=(INDEX+1)%4
+			print (INDEX,file=sys.stderr)
+			auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEYS[INDEX], TWITTER_CONSUMER_SECRETS[INDEX])
+			auth.set_access_token(TWITTER_ACCESS_TOKENS[INDEX], TWITTER_ACCESS_TOKEN_SECRETS[INDEX])
+			tweepy_api = tweepy.API(auth)
+			pass
+
 
 	return("Done")
 
-@app.route("/getModiData")
-def getTweetM():
-	all_tweets = tweepy_api.search('modi OR bjp pm OR pm modi')
+def getTweetM(max_id):
+	all_tweets = tweepy_api.search('modi OR bjp pm OR pm modi',count=100,max_id=max_id)
 	tweets=[]
+	min_id = None 
+	same = 0
 	for tweet in all_tweets:
+		url_id = str(tweet.id)
+		if TweetModel.query.filter(TweetModel.url_id==str(tweet.id)).all():
+			same += 1
+			continue
 		username = tweet.user.name
 		content = tweet.text
 		fword = content.split(" ")[0]
 		retweeted = False
 		if fword=='RT':
 			retweeted = True
-		print (retweeted, file=sys.stderr)
+		print (same, file=sys.stderr)
 		hashtags = [h['text'] for h in tweet.entities['hashtags']]
 		location = tweet.user.location
 		favourite = tweet.favorite_count
 		coordinates=tweet.coordinates
 		tweetFor = TYPE_MODI
-		url_id = str(tweet.id)
 		tweetType = TWEETTYPE_TEXT
 		if('media' in tweet.entities):
 			if content:
@@ -157,28 +227,32 @@ def getTweetM():
 				coordinates=coordinates,tweetType=tweetType ,tweetFor=tweetFor,url_id=url_id)
 		model.save()
 		tweets.append([tweet.id,username,content,hashtags,retweeted,location,favourite,coordinates,tweetType])
-
+		min_id = url_id
 	# return(1)
-	return render_template('index.html', tweets = tweets)
+	return min_id
 
-@app.route("/getKejriData")
-def getTweetK():
-	all_tweets = tweepy_api.search('kejriwal OR aam aadmi party OR aap')
+def getTweetK(max_id):
+	all_tweets = tweepy_api.search('kejriwal OR aam aadmi party OR aap',count=100,max_id=max_id)
 	tweets=[]
-	# print (all_tweets[0], file=sys.stderr)
+	min_id = None 
+	same = 0
 	for tweet in all_tweets:
+		url_id = str(tweet.id)
+		if TweetModel.query.filter(TweetModel.url_id==str(tweet.id)).all():
+			same += 1
+			continue
 		username = tweet.user.name
 		content = tweet.text
 		fword = content.split(" ")[0]
 		retweeted = False
 		if fword=='RT':
 			retweeted = True
+		print (same, file=sys.stderr)
 		hashtags = [h['text'] for h in tweet.entities['hashtags']]
 		location = tweet.user.location
 		favourite = tweet.favorite_count
 		coordinates=tweet.coordinates
 		tweetFor = TYPE_KEJRI
-		url_id = str(tweet.id)
 		tweetType = TWEETTYPE_TEXT
 		if('media' in tweet.entities):
 			if content:
@@ -190,8 +264,9 @@ def getTweetK():
 				coordinates=coordinates,tweetType=tweetType ,tweetFor=tweetFor,url_id=url_id)
 		model.save()
 		tweets.append([tweet.id,username,content,hashtags,retweeted,location,favourite,coordinates,tweetType])
-
-	return render_template('index.html', tweets = tweets)
+		min_id = url_id
+	# return(1)
+	return min_id
 
 if __name__ == "__main__":
 	app.run()
