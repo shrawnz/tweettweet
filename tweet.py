@@ -95,6 +95,17 @@ def showHashtag():
 	# print (result,file=sys.stderr)
 	return render_template('hashtag.html',tags_m=result_m[:10],tags_k=result_k[:10])
 
+@app.route("/showRetweet")
+def showRetweet():
+	re_tweets = TweetModel.query.filter(TweetModel.retweeted==True).all()
+	orig_tweets = TweetModel.query.filter(TweetModel.retweeted==False).all()
+	cnt_re = len(re_tweets)
+	cnt_orig = len(orig_tweets)
+	ptage_re = cnt_re/(cnt_re+cnt_orig)
+	ptage_orig = cnt_orig/(cnt_re+cnt_orig)
+	data = [["Retweets",ptage_re],["Original Tweets",ptage_orig]]
+	return render_template('retweet.html',data=data)
+
 @app.route("/showFav")
 def showFav():
 	original_tweets = TweetModel.query.filter(TweetModel.retweeted==False).all()

@@ -12,8 +12,8 @@
 </head>
 <body>
 
-<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-    <table id="datatable">
+<div id="container_modi" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+    <table id="datatable_modi">
     <thead>
         <tr>
 
@@ -32,6 +32,27 @@
     </tbody>
 </table>
 
+    <br><br>
+    <div id="container_kejri" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+      <table id="datatable_kejri">
+    <thead>
+        <tr>
+
+            <th></th>
+            <th>Kejriwal Hashtags</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in tags_k %}
+        <tr>
+            <th>#{{t.0}}</th>
+            <td>{{t.1}}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+    </tbody>
+</table>
+
 
 </body>
 
@@ -40,15 +61,39 @@
 <script>
    $(document).ready()
    {
-    Highcharts.chart('container', {
+    Highcharts.chart('container_modi', {
     data: {
-        table: 'datatable'
+        table: 'datatable_modi'
     },
     chart: {
         type: 'column'
     },
     title: {
         text: 'Most popular hashtags used in tweets for Modi'
+    },
+    yAxis: {
+        allowDecimals: false,
+        title: {
+            text: 'Units'
+        }
+    },
+    tooltip: {
+        formatter: function () {
+            return '<b>' + this.series.name + '</b><br/>' +
+                this.point.y + ' ' + this.point.name.toLowerCase();
+        }
+    }
+ });
+
+    Highcharts.chart('container_kejri', {
+    data: {
+        table: 'datatable_kejri'
+    },
+    chart: {
+        type: 'column'
+    },
+    title: {
+        text: 'Most popular hashtags used in tweets for Kejriwal'
     },
     yAxis: {
         allowDecimals: false,
