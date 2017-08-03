@@ -1,1 +1,1 @@
-web gunicorn tweet:app 
+web gunicorn app:app 
